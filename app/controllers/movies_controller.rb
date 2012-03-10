@@ -7,7 +7,16 @@ class MoviesController < ApplicationController
   end
 
   def index
+    if params[:order] != nil
+     order_attrib = params[:order]
+     @movies = Movie.order(order_attrib)
+     @class_title = params[:title]
+     @class_release = params[:release]
+    else 
     @movies = Movie.all
+    @class_title = false
+    @class_release = false
+    end
   end
 
   def new
