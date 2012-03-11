@@ -8,23 +8,32 @@ class MoviesController < ApplicationController
 
   def index
      @all_ratings = Movie.ratings   
+     #flag for changing bg color of sorting index
+     @class_hilite = '0'
+     #hash to keep checkbox values
+     @checked = {}
+     @all_ratings.each do |rating|
+      @checked[rating] = false
+     end
      if params[:ratings] != nil
-      checked_ratings  = params[:ratings].keys
-     else
+      params[:ratings].keys.each do |rating|
+       @checked[rating] = true
+      end
+     end
+     checked_ratings = @checked.select {|k,v| v == true} #returns a hash
+     if checked_ratings.empty?
+      #nothing is checked
       checked_ratings = @all_ratings
+     else
+       checked_ratings = checked_ratings.keys #we need only rating names
      end
      if params[:order] != nil
      @movies  = Movie.find_all_by_rating(checked_ratings, :order => params[:order])    
-     # order_attrib = params[:order]
-     #@movies = Movie.order(order_attrib)
-      @class_title = params[:title]
-      @class_release = params[:release]
-      logger.debug("value of @class_title is #{@class_title} and of @class_release is #{@class_release}")
+     @class_hilite = params[:hilite]
+      # logger.debug("value of @class_title is #{@class_title} and of @class_release is #{@class_release}")
      else 
    # @movies = Movie.all
       @movies  = Movie.find_all_by_rating(checked_ratings)     
-      @class_title = false
-      @class_release = false
     end
   end
 
