@@ -7,15 +7,24 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if params[:order] != nil
-     order_attrib = params[:order]
-     @movies = Movie.order(order_attrib)
-     @class_title = params[:title]
-     @class_release = params[:release]
-    else 
-    @movies = Movie.all
-    @class_title = false
-    @class_release = false
+     @all_ratings = Movie.ratings   
+     if params[:ratings] != nil
+      checked_ratings  = params[:ratings].keys
+     else
+      checked_ratings = @all_ratings
+     end
+     if params[:order] != nil
+     @movies  = Movie.find_all_by_rating(checked_ratings, :order => params[:order])    
+     # order_attrib = params[:order]
+     #@movies = Movie.order(order_attrib)
+      @class_title = params[:title]
+      @class_release = params[:release]
+      logger.debug("value of @class_title is #{@class_title} and of @class_release is #{@class_release}")
+     else 
+   # @movies = Movie.all
+      @movies  = Movie.find_all_by_rating(checked_ratings)     
+      @class_title = false
+      @class_release = false
     end
   end
 
