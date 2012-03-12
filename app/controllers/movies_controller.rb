@@ -15,14 +15,18 @@ class MoviesController < ApplicationController
      @all_ratings.each do |rating|
       @checked[rating] = false
      end
+     options = {} #options for find_all method
+     redirect = false
+
      if params[:ratings] != nil
       params[:ratings].keys.each do |rating|
        @checked[rating] = true
       end
-      session[:filtering] = {}
-      session[:filtering].replace(params[:ratings])
-     elsif session[:filtering] != nil 
-       redirect_to movies_path(:ratings => session[:filtering])
+      session[:filtering] = params[:ratings].dup
+     elsif session[:filtering] != nil
+       params[:ratings] = session[:filtering]
+       redirect = true 
+       #redirect_to movies_path(:ratings => session[:filtering])
      end
      checked_ratings = @checked.select {|k,v| v == true} #returns a hash
      if checked_ratings.empty?
@@ -32,16 +36,21 @@ class MoviesController < ApplicationController
        checked_ratings = checked_ratings.keys #we need only rating names
      end
      if params[:order] != nil
-     @movies  = Movie.find_all_by_rating(checked_ratings, :order => params[:order])    
-     @class_hilite = params[:hilite]
-     session[:sorting] = params[:order].dup
+   #  @movies  = Movie.find_all_by_rating(checked_ratings, :order => params[:order])    
+      @class_hilite = params[:hilite]
+      session[:sorting] = params[:order].dup
+      options = {:order => params[:order]}
       # logger.debug("value of @class_title is #{@class_title} and of @class_release is #{@class_release}")
     # elsif session[:sorting] != nil
     #  redirect_to movies_path(:order => session[:sorting], :rating => params[:rating])
-     else
+     elsif session[:sorting] != nil
+      params[:order] = session[:sorting]
+      redirect = true
+     end
+     if redirect; redirect_to movies_path(params); end
       #@movies = Movie.all
-      @movies  = Movie.find_all_by_rating(checked_ratings)     
-    end
+     @movies  = Movie.find_all_by_rating(checked_ratings, options)     
+    #end
   end
 
   def new
